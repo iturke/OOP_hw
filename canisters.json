@@ -1,0 +1,14 @@
+[
+    {
+        "size": 20,
+        "fullness": 15,
+        "type": "A-95",
+        "octane_num": 95
+    },
+    {
+        "size": 30,
+        "fullness": 25,
+        "type": "A-92",
+        "octane_num": 92
+    }
+]

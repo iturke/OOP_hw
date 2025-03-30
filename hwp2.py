@@ -1,3 +1,7 @@
+import pickle
+import shelve
+import json 
+
 class Volume:
     def __init__(self, s, f):
         self.size = s  
@@ -47,6 +51,9 @@ class Canister(Volume):
     def __str__(self):
         """Повертає рядок з інформацією про каністру."""
         return f"{super().__str__()}, Пальне: {self.type} (октанове число: {self.octane_num})"
+    
+    def __repr__(self):
+        return f"Canister({self.size}, {self.fullness}, '{self.type}')"
 
 class Canisters:
     def __init__(self):
@@ -84,8 +91,82 @@ class Canisters:
                 canister.fullness = max(0, new_fullness)  # Заповненість не може бути від'ємною
                 print(f"Каністра з {octane_num} октановим числом спорожнена на 10%. "
                       f"Нова заповненість: {canister.fullness} л.")
+ 
+    def save_to_file(self, filename="canisters.pkl"): #Зберігає всі каністри у файл
+        with open( filename, "wb") as file:
+             pickle.dump(self.canisters, file)
+        print(f" Дані збережено до файлу {filename}.")
+
+    def load_from_file( self, filename= "canisters.pkl"): #Завантажує каністри з файлу
+        with open (filename, "rb") as file:
+            self.canisters = pickle.load(file)
+        print(f" Дані завантажено з файлу {filename}.")    
+
+    def save_to_shelve(self, filename="canisters.slv"):#Зберігає всі каністри у файл shelve у вигляді словника.
+        with shelve.open(filename) as db:
+            for canister in self.canisters:
+                db[canister.type] = canister
+        print(f" Дані збережено y форматі 'псевдословника' в {filename}")
+
+    def load_from_shelve(self, filename="canisters.slv"): #Завантажує каністри з shelve у список
+        self.canisters = []
+        with shelve.open(filename) as db:
+            for key in db:
+                self.canisters.append(db[key])
+        print(f"Дані завантажено з файлу {filename}")
+
+    def save_to_text(self, filename="canisters.txt"):
+        """Зберігає каністри у текстовому файлі у вигляді repr."""
+        with open(filename, 'w', encoding='utf-8') as file:
+            for canister in self.canisters:
+                file.write(repr(canister) + '\n')
+        print(f"Дані збережено у текстовому файлі {filename}")
+
+    def load_from_text(self, filename="canisters.txt"):
+        """Завантажує каністри з текстового файлу, використовуючи eval."""
+        self.canisters = []
+        with open(filename, 'r', encoding='utf-8') as file:
+            for line in file:
+                canister = eval(line.strip())
+                if isinstance(canister, Canister):
+                    self.add_canister(canister)
+        print(f"Дані завантажено з текстового файлу {filename}")
+
+    def save_to_json(self, filename="canisters.json"):
+        """Зберігає каністри у JSON файл без зміни класу Canister."""
+        data = []
+        for canister in self.canisters:
+            data.append({
+                'size': canister.size,
+                'fullness': canister.fullness,
+                'type': canister.type,
+                'octane_num': canister.octane_num
+            })
+        
+        with open(filename, 'w', encoding='utf-8') as file:
+            json.dump(data, file, indent=4, ensure_ascii=False)
+        print(f"Дані збережено у JSON файл {filename}")
+
+    def load_from_json(self, filename="canisters.json"):
+        """Завантажує каністри з JSON файлу без зміни класу Canister."""
+        self.canisters = []
+        with open(filename, 'r', encoding='utf-8') as file:
+            data = json.load(file)
+            for item in data:
+                canister = Canister(
+                    s=item['size'],
+                    f=item['fullness'],
+                    t=item['type']
+                )
+                self.add_canister(canister)
+        print(f"Дані завантажено з JSON файлу {filename}")
+
 
     def __str__(self):
         """Повертає рядок з інформацією про всі каністри."""
         return "\n".join(str(canister) for canister in self.canisters)
+    
+    def __repr__(self):#Повертає рядок, який можна використати для відтворення об'єкта.
+        return f"Canisters({self.canisters})"
+
 

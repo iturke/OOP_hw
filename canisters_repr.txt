@@ -1,0 +1,4 @@
+Canister(20, 15, 'A-95')
+Canister(20, 15, 'A-95')
+Canister(30, 25, 'A-92')
+Canister(40, 35, 'Дизель')
